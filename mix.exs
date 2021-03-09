@@ -6,7 +6,7 @@ defmodule Mssqlex.Mixfile do
       app: :mssqlex,
       version: "1.1.0",
       description:
-        "Adapter to Microsoft SQL Server. Using DBConnection and ODBC.",
+        "Adapter to Microsoft SQL Server. Using DBConnLegacy and ODBC.",
       elixir: "~> 1.6",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -24,7 +24,7 @@ defmodule Mssqlex.Mixfile do
 
       # Docs
       name: "Mssqlex",
-      source_url: "https://github.com/findmypast-oss/mssqlex",
+      source_url: "https://github.com/tschnibo/mssqlex",
       docs: [main: "readme", extras: ["README.md"]]
     ]
   end
@@ -35,7 +35,7 @@ defmodule Mssqlex.Mixfile do
 
   defp deps do
     [
-      {:db_connection, "~> 1.1"},
+      {:db_conn_legacy, "~> 1.1"},
       {:decimal, "~> 1.0"},
       {:ex_doc, "~> 0.15", only: :dev, runtime: false},
       {:excoveralls, "~> 0.6", only: :test},

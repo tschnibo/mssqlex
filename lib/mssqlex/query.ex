@@ -1,6 +1,6 @@
 defmodule Mssqlex.Query do
   @moduledoc """
-  Implementation of `DBConnection.Query` for `Mssqlex`.
+  Implementation of `DBConnLegacy.Query` for `Mssqlex`.
 
   The structure is:
     * `name` - currently not used.
@@ -16,7 +16,7 @@ defmodule Mssqlex.Query do
   defstruct [:name, :statement, :columns]
 end
 
-defimpl DBConnection.Query, for: Mssqlex.Query do
+defimpl DBConnLegacy.Query, for: Mssqlex.Query do
   alias Mssqlex.Query
   alias Mssqlex.Result
   alias Mssqlex.Type

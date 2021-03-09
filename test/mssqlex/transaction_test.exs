@@ -15,7 +15,7 @@ defmodule Mssqlex.TransactionTest do
     table_name = "transaction_test.dbo.simple"
 
     assert {:ok, %Result{}} =
-             DBConnection.transaction(pid, fn pid ->
+             DBConnLegacy.transaction(pid, fn pid ->
                {:ok, _, _} =
                  Mssqlex.query(
                    pid,
@@ -41,7 +41,7 @@ defmodule Mssqlex.TransactionTest do
     table_name = "transaction_test.dbo.nested"
 
     assert {:ok, %Result{}} =
-             DBConnection.transaction(pid, fn pid ->
+             DBConnLegacy.transaction(pid, fn pid ->
                Mssqlex.query!(
                  pid,
                  "CREATE TABLE #{table_name} (name varchar(50));",
@@ -49,7 +49,7 @@ defmodule Mssqlex.TransactionTest do
                )
 
                {:ok, _} =
-                 DBConnection.transaction(pid, fn pid ->
+                 DBConnLegacy.transaction(pid, fn pid ->
                    {:ok, _, result} =
                      Mssqlex.query(
                        pid,
@@ -61,7 +61,7 @@ defmodule Mssqlex.TransactionTest do
                  end)
 
                {:ok, result} =
-                 DBConnection.transaction(pid, fn pid ->
+                 DBConnLegacy.transaction(pid, fn pid ->
                    {:ok, _, result} =
                      Mssqlex.query(
                        pid,
@@ -84,16 +84,16 @@ defmodule Mssqlex.TransactionTest do
     table_name = "transaction_test.dbo.failing"
 
     assert_raise Mssqlex.Error, fn ->
-      DBConnection.transaction(pid, fn pid ->
+      DBConnLegacy.transaction(pid, fn pid ->
         Mssqlex.query!(pid, "CREATE TABLE #{table_name} (name varchar(3));", [])
 
         {:ok, _} =
-          DBConnection.transaction(pid, fn pid ->
+          DBConnLegacy.transaction(pid, fn pid ->
             Mssqlex.query!(pid, "INSERT INTO #{table_name} VALUES ('Jae');", [])
           end)
 
         {:ok, result} =
-          DBConnection.transaction(pid, fn pid ->
+          DBConnLegacy.transaction(pid, fn pid ->
             Mssqlex.query!(
               pid,
               "INSERT INTO #{table_name} VALUES ('Steven');",
@@ -111,7 +111,7 @@ defmodule Mssqlex.TransactionTest do
 
   test "failing transaction timeout test", %{pid: pid} do
     assert_raise Mssqlex.Error, fn ->
-      DBConnection.transaction(
+      DBConnLegacy.transaction(
         pid,
         fn _ ->
           :timer.sleep(1000)
@@ -125,7 +125,7 @@ defmodule Mssqlex.TransactionTest do
     table_name = "transaction_test.dbo.roll_back"
 
     assert {:error, :rollback} =
-             DBConnection.transaction(pid, fn pid ->
+             DBConnLegacy.transaction(pid, fn pid ->
                Mssqlex.query!(
                  pid,
                  "CREATE TABLE #{table_name} (name varchar(3));",
@@ -133,7 +133,7 @@ defmodule Mssqlex.TransactionTest do
                )
 
                with {:ok, _} <-
-                      DBConnection.transaction(pid, fn pid ->
+                      DBConnLegacy.transaction(pid, fn pid ->
                         with {:ok, _, result} <-
                                Mssqlex.query(
                                  pid,
@@ -142,11 +142,11 @@ defmodule Mssqlex.TransactionTest do
                                ) do
                           result
                         else
-                          {:error, reason} -> DBConnection.rollback(pid, reason)
+                          {:error, reason} -> DBConnLegacy.rollback(pid, reason)
                         end
                       end),
                     {:ok, result} <-
-                      DBConnection.transaction(pid, fn pid ->
+                      DBConnLegacy.transaction(pid, fn pid ->
                         with {:ok, _, result} <-
                                Mssqlex.query(
                                  pid,
@@ -155,7 +155,7 @@ defmodule Mssqlex.TransactionTest do
                                ) do
                           result
                         else
-                          {:error, reason} -> DBConnection.rollback(pid, reason)
+                          {:error, reason} -> DBConnLegacy.rollback(pid, reason)
                         end
                       end) do
                  result
@@ -170,7 +170,7 @@ defmodule Mssqlex.TransactionTest do
     table_name = "transaction_test.dbo.commit_savepoint"
 
     assert {:ok, %Result{}} =
-             DBConnection.transaction(
+             DBConnLegacy.transaction(
                pid,
                fn pid ->
                  Mssqlex.query!(
@@ -199,7 +199,7 @@ defmodule Mssqlex.TransactionTest do
     table_name = "transaction_test.dbo.failing_savepoint"
 
     assert_raise Mssqlex.Error, fn ->
-      DBConnection.transaction(
+      DBConnLegacy.transaction(
         pid,
         fn pid ->
           Mssqlex.query!(
@@ -208,7 +208,7 @@ defmodule Mssqlex.TransactionTest do
             []
           )
 
-          DBConnection.transaction(
+          DBConnLegacy.transaction(
             pid,
             fn pid ->
               Mssqlex.query!(
@@ -220,7 +220,7 @@ defmodule Mssqlex.TransactionTest do
             mode: :savepoint
           )
 
-          DBConnection.transaction(
+          DBConnLegacy.transaction(
             pid,
             fn pid ->
               Mssqlex.query!(
@@ -243,10 +243,10 @@ defmodule Mssqlex.TransactionTest do
   test "savepoint inside transaction", %{pid: pid} do
     table_name = "transaction_test.dbo.savepoint_in_transaction"
 
-    DBConnection.transaction(pid, fn pid ->
+    DBConnLegacy.transaction(pid, fn pid ->
       Mssqlex.query!(pid, "CREATE TABLE #{table_name} (name varchar(3));", [])
 
-      DBConnection.transaction(
+      DBConnLegacy.transaction(
         pid,
         fn pid ->
           Mssqlex.query!(pid, "INSERT INTO #{table_name} VALUES ('Tom')", [])
@@ -264,14 +264,14 @@ defmodule Mssqlex.TransactionTest do
 
     Mssqlex.query!(pid, "CREATE TABLE #{table_name} (name varchar(3));", [])
 
-    DBConnection.transaction(pid, fn pid ->
+    DBConnLegacy.transaction(pid, fn pid ->
       Mssqlex.query!(pid, "INSERT INTO #{table_name} VALUES ('Joe')", [])
 
-      DBConnection.transaction(
+      DBConnLegacy.transaction(
         pid,
         fn pid ->
           Mssqlex.query!(pid, "INSERT INTO #{table_name} VALUES ('Tom')", [])
-          DBConnection.rollback(pid, "Some reason")
+          DBConnLegacy.rollback(pid, "Some reason")
         end,
         mode: :savepoint
       )

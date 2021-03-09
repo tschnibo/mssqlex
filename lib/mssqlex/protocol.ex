@@ -1,15 +1,15 @@
 defmodule Mssqlex.Protocol do
   @moduledoc """
-  Implementation of `DBConnection` behaviour for `Mssqlex.ODBC`.
+  Implementation of `DBConnLegacy` behaviour for `Mssqlex.ODBC`.
 
   Handles translation of concepts to what ODBC expects and holds
   state for a connection.
 
   This module is not called directly, but rather through
-  other `Mssqlex` modules or `DBConnection` functions.
+  other `Mssqlex` modules or `DBConnLegacy` functions.
   """
 
-  use DBConnection
+  use DBConnLegacy
 
   alias Mssqlex.ODBC
   alias Mssqlex.Result

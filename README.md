@@ -8,7 +8,7 @@
 [![Hex.pm Downloads](https://img.shields.io/hexpm/dt/mssqlex.svg)](https://hex.pm/packages/mssqlex)
 [![License](https://img.shields.io/hexpm/l/mssqlex.svg)](https://github.com/findmypast-oss/mssqlex/blob/master/LICENSE)
 
-Adapter to Microsoft SQL Server. Using `DBConnection` and `ODBC`.
+Adapter to Microsoft SQL Server. Using `DBConnLegacy` and `ODBC`.
 
 It connects to [Ecto](https://github.com/elixir-ecto/ecto) with [MssqlEcto](https://github.com/findmypast-oss/mssql_ecto).
 
