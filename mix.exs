@@ -24,7 +24,7 @@ defmodule Mssqlex.Mixfile do
 
       # Docs
       name: "Mssqlex",
-      source_url: "https://github.com/tschnibo/mssqlex",
+      #source_url: "https://github.com/tschnibo/mssqlex",
       docs: [main: "readme", extras: ["README.md"]]
     ]
   end
@@ -35,7 +35,7 @@ defmodule Mssqlex.Mixfile do
 
   defp deps do
     [
-      {:db_conn_legacy, "~> 1.1"},
+      {:db_conn_legacy, git: "https://github.com/tschnibo/db_connection.git", branch: "v1.1" },
       {:decimal, "~> 1.0"},
       {:ex_doc, "~> 0.15", only: :dev, runtime: false},
       {:excoveralls, "~> 0.6", only: :test},
@@ -50,7 +50,7 @@ defmodule Mssqlex.Mixfile do
       files: ["lib", "mix.exs", "README.md", "LICENSE"],
       maintainers: ["Steven Blowers", "Jae Bach Hardie"],
       licenses: ["Apache 2.0"],
-      links: %{"GitHub" => "https://github.com/findmypast-oss/mssqlex"}
+      #links: %{"GitHub" => "https://github.com/findmypast-oss/mssqlex"}
     ]
   end
 
