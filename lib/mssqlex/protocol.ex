@@ -66,6 +66,26 @@ defmodule Mssqlex.Protocol do
       {"TrustServerCertificate", to_yesno(trust)}
     ]
 
+    # rename option keys (trick 77 JM) set :rename_conn_opts list in opts
+    # e.g. rename_conn_opts: [%{"old" => "Server", "new" => "servernode"}]
+    # useful for non mssql dbs e.g. SAP hana :)
+
+    conn_opts =
+    case opts[:rename_conn_opts] do
+      nil -> conn_opts
+      rename_list ->
+        Enum.map(conn_opts, fn(map) ->
+          Enum.map(rename_list, fn(option) ->
+            oldvalue = option["old"]
+            case map do
+              {^oldvalue, value} -> {option["new"], value}
+              {key, value} -> {key, value}
+            end
+          end)
+        end)|> List.flatten()
+    end
+    # end trick 77
+
     conn_str =
       Enum.reduce(conn_opts, "", fn {key, value}, acc ->
         acc <> "#{key}=#{value};"
@@ -307,8 +327,24 @@ defmodule Mssqlex.Protocol do
   end
 
   def ping(state) do
-    query = %Mssqlex.Query{name: "ping", statement: "SELECT 1"}
+    ping_statement =
+    case Application.fetch_env(:mssqlex, :drivername_pingstatement) do
+      :error -> "SELECT 1" #fallback to original statement
+      {:ok, driverlist} ->
+                            config_map =
+                            case Process.info(self(),:registered_name) do
+                              {:registered_name, name} -> Enum.find(driverlist, false,  fn(entry) -> entry["name"] == name end)
+                                _ -> false
+                            end
 
+                            if config_map != false do
+                              config_map["ping_statement"]
+                            else
+                              "SELECT 1"
+                            end
+      end
+
+    query = %MssqlexV3.Query{name: "ping", statement: ping_statement}
     case do_query(query, [], [], state) do
       {:ok, _, new_state} -> {:ok, new_state}
       {:error, reason, new_state} -> {:disconnect, reason, new_state}
